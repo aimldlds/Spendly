@@ -1,0 +1,191 @@
+/* ------------------------------------------------------------------ */
+/* Hero — single-column centered layout                                */
+/* ------------------------------------------------------------------ */
+
+.hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 4.5rem 2rem 5rem;
+    max-width: 860px;
+    margin: 0 auto;
+    /* reset the two-column grid from style.css */
+    grid-template-columns: unset;
+    gap: 0;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    margin-bottom: 1.75rem;
+    border: 1px solid rgba(26, 71, 42, 0.15);
+}
+
+.hero-badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+}
+
+.hero-title {
+    font-size: clamp(2.8rem, 6vw, 4.5rem);
+    margin-bottom: 1.25rem;
+}
+
+.hero-title-accent {
+    color: var(--accent);
+}
+
+.hero-subtitle {
+    max-width: 520px;
+    margin: 0 auto 2rem;
+}
+
+.hero-actions {
+    justify-content: center;
+    margin-bottom: 3.5rem;
+}
+
+/* Both CTAs use the same dark filled style */
+.hero-actions .btn-ghost {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+}
+
+.hero-actions .btn-ghost:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--paper);
+}
+
+/* ------------------------------------------------------------------ */
+/* Mock browser card                                                    */
+/* ------------------------------------------------------------------ */
+
+.mock-browser {
+    width: 100%;
+    max-width: 780px;
+    background: var(--paper-warm);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 12px 50px rgba(0, 0, 0, 0.08);
+}
+
+.mock-browser-chrome {
+    background: #e8e5de;
+    padding: 0.7rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.mock-traffic-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.mock-browser-body {
+    background: #ffffff;
+    padding: 1.5rem;
+}
+
+.mock-stat-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.mock-stat-card {
+    background: var(--paper);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    text-align: left;
+}
+
+.mock-stat-label {
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+}
+
+.mock-stat-value {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--ink);
+    line-height: 1.15;
+    margin-bottom: 0.25rem;
+}
+
+.mock-stat-delta {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--ink-muted);
+}
+
+.mock-stat-delta--up   { color: var(--danger); }
+.mock-stat-delta--ok   { color: var(--accent); }
+
+.mock-cat-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.mock-cat-row {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    align-items: center;
+    gap: 1rem;
+}
+
+.mock-cat-name {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    text-align: right;
+}
+
+.mock-cat-track {
+    height: 8px;
+    background: var(--border-soft);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.mock-cat-fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+.mock-cat-fill--food   { background: var(--accent-2); }
+.mock-cat-fill--travel { background: #5b7fa6; }
+.mock-cat-fill--bills  { background: #8b5e83; }
+
+/* ------------------------------------------------------------------ */
+/* Responsive                                                           */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 640px) {
+    .mock-browser { display: none; }
+    .hero { padding: 3rem 1rem 3.5rem; }
+}
