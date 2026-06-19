@@ -1,6 +1,17 @@
-from flask import Flask, render_template
+import os
+import sqlite3
+from flask import Flask, render_template, g
+from database.db import get_db, close_db, init_db, seed_db, init_app
+
 
 app = Flask(__name__)
+
+
+# Configure Database
+app.config['DATABASE'] = os.path.join(app.root_path, 'spendly.db')
+
+# Register database functions with the app
+init_app(app)
 
 
 # ------------------------------------------------------------------ #
@@ -62,4 +73,7 @@ def delete_expense(id):
 
 
 if __name__ == "__main__":
+    with app.app_context():
+        init_db()
+        seed_db()
     app.run(debug=True, port=5001)
