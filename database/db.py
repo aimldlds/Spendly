@@ -1,5 +1,78 @@
-# Students will write this file in Step 1 — Database Setup
-# This file should contain:
-#   get_db()   — returns a SQLite connection with row_factory and foreign keys enabled
-#   init_db()  — creates all tables using CREATE TABLE IF NOT EXISTS
-#   seed_db()  — inserts sample data for development
+import sqlite3
+from werkzeug.security import generate_password_hash
+import click
+from flask import current_app, g
+
+
+def get_db():
+    if 'db' not in g:
+        g.db = sqlite3.connect(
+            current_app.config['DATABASE'],
+            detect_types=sqlite3.PARSE_DECLTYPES
+        )
+        g.db.row_factory = sqlite3.Row
+        g.db.execute("PRAGMA foreign_keys = ON")
+    return g.db
+
+
+def close_db(e=None):
+    db = g.pop('db', None)
+    if db is not None:
+        db.close()
+
+
+def init_db():
+    db = get_db()
+    with current_app.open_resource('schema.sql') as f:
+        db.executescript(f.read().decode('utf8'))
+
+
+def seed_db():
+    db = get_db()
+
+    # Check if users table already contains data
+    if db.execute("SELECT COUNT(*) FROM users").fetchone()[0] > 0:
+        return
+
+    # Insert demo user
+    db.execute(
+        "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+        ("Demo User", "demo@spendly.com", generate_password_hash("demo123")),
+    )
+
+    # Insert 8 sample expenses
+    expenses_data = [
+        (1, 50.00, "Food", "2026-06-01", "Lunch with friends"),
+        (1, 25.50, "Transport", "2026-06-02", "Bus ticket"),
+        (1, 75.00, "Bills", "2026-06-03", "Electricity bill"),
+        (1, 120.00, "Health", "2026-06-04", "Gym membership"),
+        (1, 30.00, "Entertainment", "2026-06-05", "Movie ticket"),
+        (1, 80.00, "Shopping", "2026-06-06", "New shirt"),
+        (1, 40.00, "Other", "2026-06-07", "Donation"),
+        (1, 60.00, "Food", "2026-06-08", "Groceries"),
+    ]
+    db.executemany(
+        "INSERT INTO expenses (user_id, amount, category, date, description) VALUES (?, ?, ?, ?, ?)",
+        expenses_data,
+    )
+    db.commit()
+
+
+@click.command('init-db')
+def init_db_command():
+    """Clear existing data and create new tables."""
+    init_db()
+    click.echo('Initialized the database.')
+
+
+@click.command('seed-db')
+def seed_db_command():
+    """Seed the database with sample data."""
+    seed_db()
+    click.echo('Seeded the database with sample data.')
+
+
+def init_app(app):
+    app.teardown_appcontext(close_db)
+    app.cli.add_command(init_db_command)
+    app.cli.add_command(seed_db_command)
