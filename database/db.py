@@ -58,6 +58,17 @@ def seed_db():
     db.commit()
 
 
+def create_user(name, email, password):
+    db = get_db()
+    password_hash = generate_password_hash(password)
+    cursor = db.execute(
+        "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+        (name, email, password_hash),
+    )
+    db.commit()
+    return cursor.lastrowid
+
+
 @click.command('init-db')
 def init_db_command():
     """Clear existing data and create new tables."""
