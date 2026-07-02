@@ -77,12 +77,21 @@ def get_user_by_email(email):
     ).fetchone()
 
 
-def get_expenses_for_user(user_id):
+def get_expenses_for_user(user_id, start_date=None, end_date=None):
     db = get_db()
-    return db.execute(
-        "SELECT * FROM expenses WHERE user_id = ? ORDER BY date DESC",
-        (user_id,),
-    ).fetchall()
+    query = "SELECT * FROM expenses WHERE user_id = ?"
+    params = [user_id]
+
+    if start_date:
+        query += " AND date >= ?"
+        params.append(start_date)
+
+    if end_date:
+        query += " AND date <= ?"
+        params.append(end_date)
+
+    query += " ORDER BY date DESC"
+    return db.execute(query, params).fetchall()
 
 
 @click.command('init-db')

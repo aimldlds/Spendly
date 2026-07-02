@@ -10,6 +10,25 @@
 </div>
 
 <section class="profile-section">
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+    <div class="auth-{{ category }}">{{ message }}</div>
+    {% endfor %}
+
+    <form class="filter-form" method="GET" action="{{ url_for('profile') }}">
+        <div class="filter-form-field">
+            <label for="start_date">From</label>
+            <input type="date" id="start_date" name="start_date" class="form-input" value="{{ start_date }}">
+        </div>
+        <div class="filter-form-field">
+            <label for="end_date">To</label>
+            <input type="date" id="end_date" name="end_date" class="form-input" value="{{ end_date }}">
+        </div>
+        <button type="submit" class="btn-ghost">Filter</button>
+        {% if start_date or end_date %}
+        <a href="{{ url_for('profile') }}" class="filter-clear">Clear filter</a>
+        {% endif %}
+    </form>
+
     {% if expenses %}
     <div class="expense-total">
         <p class="expense-total-label">Total spent</p>

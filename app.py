@@ -101,9 +101,23 @@ def logout():
 @app.route("/profile")
 @login_required
 def profile():
-    expenses = get_expenses_for_user(session["user_id"])
+    start_date = request.args.get("start_date", "").strip()
+    end_date = request.args.get("end_date", "").strip()
+
+    if start_date and end_date and start_date > end_date:
+        flash("Start date must be before end date.", "error")
+        start_date = ""
+        end_date = ""
+
+    expenses = get_expenses_for_user(session["user_id"], start_date or None, end_date or None)
     total = sum(expense["amount"] for expense in expenses)
-    return render_template("profile.html", expenses=expenses, total=total)
+    return render_template(
+        "profile.html",
+        expenses=expenses,
+        total=total,
+        start_date=start_date,
+        end_date=end_date,
+    )
 
 
 # ------------------------------------------------------------------ #
