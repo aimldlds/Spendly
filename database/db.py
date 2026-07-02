@@ -69,6 +69,14 @@ def create_user(name, email, password):
     return cursor.lastrowid
 
 
+def get_user_by_email(email):
+    db = get_db()
+    return db.execute(
+        "SELECT * FROM users WHERE email = ?",
+        (email,),
+    ).fetchone()
+
+
 @click.command('init-db')
 def init_db_command():
     """Clear existing data and create new tables."""
