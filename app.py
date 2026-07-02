@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from functools import wraps
 from flask import Flask, render_template, g, request, redirect, url_for, flash, abort, session
 from werkzeug.security import check_password_hash
 from database.db import get_db, close_db, init_db, seed_db, init_app, create_user, get_user_by_email
@@ -13,6 +14,16 @@ app.config['DATABASE'] = os.path.join(app.root_path, 'spendly.db')
 
 # Register database functions with the app
 init_app(app)
+
+
+def login_required(view):
+    @wraps(view)
+    def wrapped_view(*args, **kwargs):
+        if session.get("user_id") is None:
+            flash("Please sign in to continue.", "error")
+            return redirect(url_for("login"))
+        return view(*args, **kwargs)
+    return wrapped_view
 
 
 # ------------------------------------------------------------------ #
@@ -80,6 +91,19 @@ def login():
     abort(405)
 
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("You have been logged out.", "success")
+    return redirect(url_for("login"))
+
+
+@app.route("/profile")
+@login_required
+def profile():
+    return render_template("profile.html")
+
+
 # ------------------------------------------------------------------ #
 # Placeholder routes — students will implement these                  #
 # ------------------------------------------------------------------ #
@@ -92,18 +116,6 @@ def terms():
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html")
-
-
-@app.route("/logout")
-def logout():
-    session.clear()
-    flash("You have been logged out.", "success")
-    return redirect(url_for("login"))
-
-
-@app.route("/profile")
-def profile():
-    return "Profile page — coming in Step 4"
 
 
 @app.route("/expenses/add")
