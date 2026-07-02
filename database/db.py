@@ -121,6 +121,12 @@ def update_expense(expense_id, amount, category, date, description):
     db.commit()
 
 
+def delete_expense(expense_id):
+    db = get_db()
+    db.execute("DELETE FROM expenses WHERE id = ?", (expense_id,))
+    db.commit()
+
+
 @click.command('init-db')
 def init_db_command():
     """Clear existing data and create new tables."""

@@ -4,7 +4,7 @@ from datetime import date, datetime
 from functools import wraps
 from flask import Flask, render_template, g, request, redirect, url_for, flash, abort, session
 from werkzeug.security import check_password_hash
-from database.db import get_db, close_db, init_db, seed_db, init_app, create_user, get_user_by_email, get_expenses_for_user, create_expense, get_expense_by_id, update_expense
+from database.db import get_db, close_db, init_db, seed_db, init_app, create_user, get_user_by_email, get_expenses_for_user, create_expense, get_expense_by_id, update_expense, delete_expense as db_delete_expense
 
 
 app = Flask(__name__)
@@ -229,6 +229,18 @@ def edit_expense(id):
     abort(405)
 
 
+@app.route("/expenses/<int:id>/delete", methods=["POST"])
+@login_required
+def delete_expense(id):
+    expense = get_expense_by_id(id)
+    if expense is None or expense["user_id"] != session["user_id"]:
+        abort(404)
+
+    db_delete_expense(id)
+    flash("Expense deleted.", "success")
+    return redirect(url_for("profile"))
+
+
 # ------------------------------------------------------------------ #
 # Placeholder routes — students will implement these                  #
 # ------------------------------------------------------------------ #
@@ -241,11 +253,6 @@ def terms():
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html")
-
-
-@app.route("/expenses/<int:id>/delete")
-def delete_expense(id):
-    return "Delete expense — coming in Step 9"
 
 
 if __name__ == "__main__":
