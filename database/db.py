@@ -94,6 +94,16 @@ def get_expenses_for_user(user_id, start_date=None, end_date=None):
     return db.execute(query, params).fetchall()
 
 
+def create_expense(user_id, amount, category, date, description):
+    db = get_db()
+    cursor = db.execute(
+        "INSERT INTO expenses (user_id, amount, category, date, description) VALUES (?, ?, ?, ?, ?)",
+        (user_id, amount, category, date, description),
+    )
+    db.commit()
+    return cursor.lastrowid
+
+
 @click.command('init-db')
 def init_db_command():
     """Clear existing data and create new tables."""
