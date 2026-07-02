@@ -10,10 +10,29 @@
 </div>
 
 <section class="profile-section">
+    {% if expenses %}
+    <div class="expense-total">
+        <p class="expense-total-label">Total spent</p>
+        <p class="expense-total-value">£{{ "%.2f"|format(total) }}</p>
+    </div>
+
+    <div class="expense-list">
+        {% for expense in expenses %}
+        <div class="expense-row">
+            <div class="expense-row-main">
+                <p class="expense-row-description">{{ expense.description or expense.category }}</p>
+                <p class="expense-row-meta">{{ expense.category }} · {{ expense.date }}</p>
+            </div>
+            <p class="expense-row-amount">£{{ "%.2f"|format(expense.amount) }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
     <div class="empty-state">
         <p class="empty-state-title">No expenses yet</p>
         <p class="empty-state-body">Your expenses will appear here.</p>
     </div>
+    {% endif %}
 </section>
 
 {% endblock %}

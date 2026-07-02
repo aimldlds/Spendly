@@ -77,6 +77,14 @@ def get_user_by_email(email):
     ).fetchone()
 
 
+def get_expenses_for_user(user_id):
+    db = get_db()
+    return db.execute(
+        "SELECT * FROM expenses WHERE user_id = ? ORDER BY date DESC",
+        (user_id,),
+    ).fetchall()
+
+
 @click.command('init-db')
 def init_db_command():
     """Clear existing data and create new tables."""
