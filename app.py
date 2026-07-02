@@ -4,7 +4,7 @@ from datetime import date, datetime
 from functools import wraps
 from flask import Flask, render_template, g, request, redirect, url_for, flash, abort, session
 from werkzeug.security import check_password_hash
-from database.db import get_db, close_db, init_db, seed_db, init_app, create_user, get_user_by_email, get_expenses_for_user, create_expense
+from database.db import get_db, close_db, init_db, seed_db, init_app, create_user, get_user_by_email, get_expenses_for_user, create_expense, get_expense_by_id, update_expense
 
 
 app = Flask(__name__)
@@ -27,6 +27,25 @@ def login_required(view):
             return redirect(url_for("login"))
         return view(*args, **kwargs)
     return wrapped_view
+
+
+def validate_expense_input(amount, category, expense_date):
+    try:
+        amount_value = float(amount)
+        if amount_value <= 0:
+            return None, "Amount must be greater than 0."
+    except ValueError:
+        return None, "Amount must be a number."
+
+    if category not in EXPENSE_CATEGORIES:
+        return None, "Please select a valid category."
+
+    try:
+        datetime.strptime(expense_date, "%Y-%m-%d")
+    except ValueError:
+        return None, "Please enter a valid date."
+
+    return amount_value, None
 
 
 # ------------------------------------------------------------------ #
@@ -140,23 +159,7 @@ def add_expense():
         expense_date = request.form.get("date", "").strip()
         description = request.form.get("description", "").strip()
 
-        error = None
-        try:
-            amount_value = float(amount)
-            if amount_value <= 0:
-                error = "Amount must be greater than 0."
-        except ValueError:
-            amount_value = None
-            error = "Amount must be a number."
-
-        if not error and category not in EXPENSE_CATEGORIES:
-            error = "Please select a valid category."
-
-        if not error:
-            try:
-                datetime.strptime(expense_date, "%Y-%m-%d")
-            except ValueError:
-                error = "Please enter a valid date."
+        amount_value, error = validate_expense_input(amount, category, expense_date)
 
         if error:
             flash(error, "error")
@@ -180,6 +183,52 @@ def add_expense():
     abort(405)
 
 
+@app.route("/expenses/<int:id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_expense(id):
+    expense = get_expense_by_id(id)
+    if expense is None or expense["user_id"] != session["user_id"]:
+        abort(404)
+
+    if request.method == "GET":
+        return render_template(
+            "expense_form.html",
+            categories=EXPENSE_CATEGORIES,
+            form_action=url_for("edit_expense", id=id),
+            today=date.today().isoformat(),
+            expense=expense,
+        )
+
+    if request.method == "POST":
+        amount = request.form.get("amount", "").strip()
+        category = request.form.get("category", "").strip()
+        expense_date = request.form.get("date", "").strip()
+        description = request.form.get("description", "").strip()
+
+        amount_value, error = validate_expense_input(amount, category, expense_date)
+
+        if error:
+            flash(error, "error")
+            return render_template(
+                "expense_form.html",
+                categories=EXPENSE_CATEGORIES,
+                form_action=url_for("edit_expense", id=id),
+                today=date.today().isoformat(),
+                expense={
+                    "amount": amount,
+                    "category": category,
+                    "date": expense_date,
+                    "description": description,
+                },
+            )
+
+        update_expense(id, amount_value, category, expense_date, description or None)
+        flash("Expense updated.", "success")
+        return redirect(url_for("profile"))
+
+    abort(405)
+
+
 # ------------------------------------------------------------------ #
 # Placeholder routes — students will implement these                  #
 # ------------------------------------------------------------------ #
@@ -192,11 +241,6 @@ def terms():
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html")
-
-
-@app.route("/expenses/<int:id>/edit")
-def edit_expense(id):
-    return "Edit expense — coming in Step 8"
 
 
 @app.route("/expenses/<int:id>/delete")

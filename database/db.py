@@ -104,6 +104,23 @@ def create_expense(user_id, amount, category, date, description):
     return cursor.lastrowid
 
 
+def get_expense_by_id(expense_id):
+    db = get_db()
+    return db.execute(
+        "SELECT * FROM expenses WHERE id = ?",
+        (expense_id,),
+    ).fetchone()
+
+
+def update_expense(expense_id, amount, category, date, description):
+    db = get_db()
+    db.execute(
+        "UPDATE expenses SET amount = ?, category = ?, date = ?, description = ? WHERE id = ?",
+        (amount, category, date, description, expense_id),
+    )
+    db.commit()
+
+
 @click.command('init-db')
 def init_db_command():
     """Clear existing data and create new tables."""
